@@ -12,6 +12,11 @@ async def root():
     return {"message": "Hello World"}
 
 
+@app.get("/items/{item_id}")
+async def read_item(item_id):
+    return {"item_id": item_id}
+
+
 def get_available_port(start=49152, end=65535):
     ports = list(range(start, end + 1))
     random.shuffle(ports)
