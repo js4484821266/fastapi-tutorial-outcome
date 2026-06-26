@@ -24,7 +24,7 @@ def get_available_port(start=49152, end=65535):
     for port in ports:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             try:
-                sock.bind(("0.0.0.0", port))
+                sock.bind(("localhost", port))
                 return port
             except OSError:
                 continue
@@ -35,4 +35,4 @@ def get_available_port(start=49152, end=65535):
 if __name__ == "__main__":
     port = get_available_port()
     print(f"Starting server on port {port}")
-    uvicorn.run(app, host="0.0.0.0", port=port, reload=False)
+    uvicorn.run(app, host="localhost", port=port, reload=False)
