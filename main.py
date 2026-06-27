@@ -17,6 +17,11 @@ async def read_item(item_id):
     return {"item_id": item_id}
 
 
+@app.get("/users/me")
+async def read_user_me():
+    return {"user_id": "the current user"}
+
+
 def get_available_port(start=49152, end=65535):
     ports = list(range(start, end + 1))
     random.shuffle(ports)
