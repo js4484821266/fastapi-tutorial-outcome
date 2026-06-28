@@ -12,14 +12,14 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/items/{item_id}")
-async def read_item(item_id):
-    return {"item_id": item_id}
+@app.get("/{a}/plus/{b}")
+async def deohagi(a: float, b: float):
+    return {"Ans": a + b}
 
 
-@app.get("/users/me")
-async def read_user_me():
-    return {"user_id": "the current user"}
+@app.get("{a}/minus/{b}")
+async def ppaegi(a: float, b: float):
+    return {"Ans": a - b}
 
 
 def get_available_port(start=49152, end=65535):
