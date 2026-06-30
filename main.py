@@ -7,16 +7,18 @@ from fastapi import FastAPI
 # arithmetic.py와 path_params.py는 각각 자기 라우터(router)만 정의합니다.
 # main.py가 그 라우터들을 가져와 앱에 등록하면, 하위 파일들이 main.py의 app을
 # 다시 import하지 않아도 되므로 순환 import 문제를 피할 수 있습니다.
-from arithmetic import router as arithmetic_router
+from query_params import router as qrr
 from path_params import router as path_params_router
+from arithmetic import router as arithmetic_router
 
 app = FastAPI()
 
 # include_router()는 다른 파일에 나누어 작성한 API 경로들을 현재 FastAPI 앱에 붙입니다.
 # 아래 두 줄 때문에 arithmetic.py의 계산 API와 path_params.py의 모델 API가
 # 모두 이 app의 라우트로 등록됩니다.
-app.include_router(arithmetic_router)
+app.include_router(qrr)
 app.include_router(path_params_router)
+app.include_router(arithmetic_router)
 
 
 @app.get("/")
