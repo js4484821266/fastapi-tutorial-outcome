@@ -3,27 +3,41 @@ import socket
 
 import uvicorn
 from fastapi import FastAPI
-
-# arithmetic.py와 path_params.py는 각각 자기 라우터(router)만 정의합니다.
-# main.py가 그 라우터들을 가져와 앱에 등록하면, 하위 파일들이 main.py의 app을
-# 다시 import하지 않아도 되므로 순환 import 문제를 피할 수 있습니다.
-from query_params import router as qrr
-from path_params import router as path_params_router
-from arithmetic import router as arithmetic_router
+from pydantic import BaseModel
 
 app = FastAPI()
 
-# include_router()는 다른 파일에 나누어 작성한 API 경로들을 현재 FastAPI 앱에 붙입니다.
-# 아래 두 줄 때문에 arithmetic.py의 계산 API와 path_params.py의 모델 API가
-# 모두 이 app의 라우트로 등록됩니다.
-app.include_router(qrr)
-app.include_router(path_params_router)
-app.include_router(arithmetic_router)
+
+################################################################################
 
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+
+class Item(BaseModel):
+    name: str
+    description: str | None = None
+    price: float
+    tax: float | None = None
+
+
+@app.post("/items/")
+async def create_item(item: Item):
+    item_dict = item.model_dump()
+    if item.tax:
+        price_with_tax = item.price + item.tax
+        item_dict.update({"price_with_tax": price_with_tax})
+    return item_dict
+
+
+@app.put("/items/{item_id}")
+async def update_item(item_id: int, item: Item):
+    return {"item_id": item_id, **item.model_dump()}
+
+
+################################################################################
 
 
 def get_available_port(start=49152, end=65535):
