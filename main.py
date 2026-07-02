@@ -1,25 +1,55 @@
-from typing import Annotated
-
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 
 app = FastAPI()
 
 
-@app.get("/items/")
-async def read_items(
-    q: Annotated[
-        str | None,
-        Query(
-            title="Query string",
-            description="Query string for the items to search in the database that have a good match",
-            min_length=3,
-        ),
-    ] = None,
-):
-    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
-    if q:
-        results.update({"q": q})
-    return results
+class ExperimentCreate(BaseModel):
+    name: str
+    target_count: int
+
+
+experiments: list[dict] = []
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
+@app.post("/experiments", status_code=201)
+def create_experiment(data: ExperimentCreate):
+    if data.target_count <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="target_count must be greater than 0",
+        )
+
+    experiment = {
+        "id": len(experiments) + 1,
+        "name": data.name,
+        "target_count": data.target_count,
+    }
+
+    experiments.append(experiment)
+    return experiment
+
+
+@app.get("/experiments")
+def list_experiments():
+    return experiments
+
+
+@app.get("/experiments/{experiment_id}")
+def get_experiment(experiment_id: int):
+    for experiment in experiments:
+        if experiment["id"] == experiment_id:
+            return experiment
+
+    raise HTTPException(
+        status_code=404,
+        detail="experiment not found",
+    )
 
 
 ################################################################################
