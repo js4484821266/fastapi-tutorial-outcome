@@ -1,43 +1,37 @@
-import random
-import socket
+from typing import Annotated
 
-import uvicorn
-
-################################################################################
-
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, Query
 
 app = FastAPI()
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-class Item(BaseModel):
-    name: str
-    description: str | None = None
-    price: float
-    tax: float | None = None
-
-
-@app.post("/items/")
-async def create_item(item: Item):
-    item_dict = item.model_dump()
-    if item.tax:
-        price_with_tax = item.price + item.tax
-        item_dict.update({"price_with_tax": price_with_tax})
-    return item_dict
-
-
-@app.put("/items/{item_id}")
-async def update_item(item_id: int, item: Item):
-    return {"item_id": item_id, **item.model_dump()}
+@app.get("/items/")
+async def read_items(
+    q: Annotated[
+        str | None,
+        Query(
+            title="Query string",
+            description="Query string for the items to search in the database that have a good match",
+            min_length=3,
+        ),
+    ] = None,
+):
+    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+    if q:
+        results.update({"q": q})
+    return results
 
 
 ################################################################################
+@app.get("/")
+async def default():
+    return {"message": "hi there"}
+
+
+import random
+import socket
+
+import uvicorn
 
 
 def get_available_port(start=49152, end=65535):
